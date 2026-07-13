@@ -29,4 +29,4 @@ npm run preview
 ## Deploy
 
 - GitHub: https://github.com/icetaratip/webpowerpointcursor
-- Vercel: เชื่อม repo นี้ → Framework **Vite** → Output `dist`
+- Vercel (production): https://cursor-eight-rust.vercel.app
