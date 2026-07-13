@@ -1,0 +1,238 @@
+import type { ReactNode } from 'react'
+
+export interface ChartPoint {
+  label: string
+  value: number
+  note?: string
+  display?: string
+}
+
+export interface ChartConfig {
+  type: 'bars' | 'line' | 'donut' | 'funnel' | 'stats'
+  title?: string
+  unit?: string
+  points: ChartPoint[]
+}
+
+const ACCENT = '#0b6b52'
+const ACCENT_MID = '#1a9b74'
+const ACCENT_SOFT = '#9fd4c2'
+const INK = '#10151c'
+const MUTED = '#5a687a'
+const TRACK = 'rgba(16, 21, 28, 0.08)'
+
+export function Chart({ chart }: { chart: ChartConfig }) {
+  switch (chart.type) {
+    case 'bars':
+      return <BarChart chart={chart} />
+    case 'line':
+      return <LineChart chart={chart} />
+    case 'donut':
+      return <DonutChart chart={chart} />
+    case 'funnel':
+      return <FunnelChart chart={chart} />
+    case 'stats':
+      return <StatRow chart={chart} />
+  }
+}
+
+function ChartFrame({ title, children }: { title?: string; children: ReactNode }) {
+  return (
+    <div className="chart">
+      {title && <p className="chart__title">{title}</p>}
+      {children}
+    </div>
+  )
+}
+
+function BarChart({ chart }: { chart: ChartConfig }) {
+  const max = Math.max(...chart.points.map((p) => p.value), 1)
+  return (
+    <ChartFrame title={chart.title}>
+      <div className="chart-bars" role="img" aria-label={chart.title ?? 'แผนภูมิแท่ง'}>
+        {chart.points.map((p, i) => (
+          <div key={p.label} className="chart-bars__row">
+            <span className="chart-bars__label">{p.label}</span>
+            <div className="chart-bars__track">
+              <div
+                className="chart-bars__fill"
+                style={{
+                  ['--bar' as string]: `${(p.value / max) * 100}%`,
+                  animationDelay: `${i * 80}ms`,
+                }}
+              />
+            </div>
+            <span className="chart-bars__value">
+              {formatValue(p.value, chart.unit)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </ChartFrame>
+  )
+}
+
+function LineChart({ chart }: { chart: ChartConfig }) {
+  const w = 520
+  const h = 180
+  const pad = { t: 16, r: 16, b: 36, l: 8 }
+  const values = chart.points.map((p) => p.value)
+  const max = Math.max(...values, 1)
+  const min = 0
+  const innerW = w - pad.l - pad.r
+  const innerH = h - pad.t - pad.b
+
+  const coords = chart.points.map((p, i) => {
+    const x = pad.l + (i / Math.max(chart.points.length - 1, 1)) * innerW
+    const y = pad.t + innerH - ((p.value - min) / (max - min)) * innerH
+    return { x, y, ...p }
+  })
+
+  const line = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ')
+  const area = `${line} L ${coords[coords.length - 1].x} ${pad.t + innerH} L ${coords[0].x} ${pad.t + innerH} Z`
+
+  return (
+    <ChartFrame title={chart.title}>
+      <svg className="chart-line" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={chart.title ?? 'แผนภูมิเส้น'}>
+        <defs>
+          <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={ACCENT} stopOpacity="0.28" />
+            <stop offset="100%" stopColor={ACCENT} stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75, 1].map((t) => (
+          <line
+            key={t}
+            x1={pad.l}
+            x2={w - pad.r}
+            y1={pad.t + innerH * (1 - t)}
+            y2={pad.t + innerH * (1 - t)}
+            stroke={TRACK}
+            strokeWidth="1"
+          />
+        ))}
+        <path d={area} fill="url(#lineFill)" className="chart-line__area" />
+        <path d={line} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinejoin="round" className="chart-line__path" />
+        {coords.map((c) => (
+          <g key={c.label}>
+            <circle cx={c.x} cy={c.y} r="5" fill="#fff" stroke={ACCENT} strokeWidth="2" />
+            <text x={c.x} y={h - 10} textAnchor="middle" fill={MUTED} fontSize="11" fontFamily="IBM Plex Mono, monospace">
+              {c.label}
+            </text>
+            <text x={c.x} y={c.y - 12} textAnchor="middle" fill={INK} fontSize="11" fontWeight="600" fontFamily="IBM Plex Mono, monospace">
+              {formatValue(c.value, chart.unit)}
+            </text>
+          </g>
+        ))}
+      </svg>
+    </ChartFrame>
+  )
+}
+
+function DonutChart({ chart }: { chart: ChartConfig }) {
+  const total = chart.points.reduce((s, p) => s + p.value, 0) || 1
+  const r = 54
+  const c = 2 * Math.PI * r
+  let offset = 0
+  const colors = [ACCENT, ACCENT_MID, '#3d6b9a', ACCENT_SOFT, '#6b7c90']
+
+  return (
+    <ChartFrame title={chart.title}>
+      <div className="chart-donut">
+        <svg viewBox="0 0 140 140" className="chart-donut__svg" role="img" aria-label={chart.title ?? 'แผนภูมิโดนัท'}>
+          <circle cx="70" cy="70" r={r} fill="none" stroke={TRACK} strokeWidth="16" />
+          {chart.points.map((p, i) => {
+            const len = (p.value / total) * c
+            const el = (
+              <circle
+                key={p.label}
+                cx="70"
+                cy="70"
+                r={r}
+                fill="none"
+                stroke={colors[i % colors.length]}
+                strokeWidth="16"
+                strokeDasharray={`${len} ${c - len}`}
+                strokeDashoffset={-offset}
+                transform="rotate(-90 70 70)"
+                className="chart-donut__seg"
+                style={{ animationDelay: `${i * 90}ms` }}
+              />
+            )
+            offset += len
+            return el
+          })}
+          <text x="70" y="66" textAnchor="middle" fill={INK} fontSize="18" fontWeight="700" fontFamily="Syne, sans-serif">
+            {chart.points.length}
+          </text>
+          <text x="70" y="84" textAnchor="middle" fill={MUTED} fontSize="10" fontFamily="IBM Plex Mono, monospace">
+            streams
+          </text>
+        </svg>
+        <ul className="chart-donut__legend">
+          {chart.points.map((p, i) => (
+            <li key={p.label}>
+              <span className="chart-donut__swatch" style={{ background: colors[i % colors.length] }} />
+              <span className="chart-donut__name">{p.label}</span>
+              <span className="chart-donut__pct">{Math.round((p.value / total) * 100)}%</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </ChartFrame>
+  )
+}
+
+function FunnelChart({ chart }: { chart: ChartConfig }) {
+  const max = Math.max(...chart.points.map((p) => p.value), 1)
+  return (
+    <ChartFrame title={chart.title}>
+      <div className="chart-funnel" role="img" aria-label={chart.title ?? 'กรวยแปลง'}>
+        {chart.points.map((p, i) => {
+          const width = 42 + (p.value / max) * 58
+          return (
+            <div
+              key={p.label}
+              className="chart-funnel__step"
+              style={{
+                width: `${width}%`,
+                animationDelay: `${i * 70}ms`,
+              }}
+            >
+              <span className="chart-funnel__idx">{String(i + 1).padStart(2, '0')}</span>
+              <span className="chart-funnel__label">{p.label}</span>
+            </div>
+          )
+        })}
+      </div>
+    </ChartFrame>
+  )
+}
+
+function StatRow({ chart }: { chart: ChartConfig }) {
+  return (
+    <ChartFrame title={chart.title}>
+      <div className="chart-stats">
+        {chart.points.map((p, i) => (
+          <div key={p.label} className="chart-stats__item" style={{ animationDelay: `${i * 60}ms` }}>
+            <span className="chart-stats__value">{p.display ?? formatValue(p.value, chart.unit)}</span>
+            <span className="chart-stats__label">{p.label}</span>
+            {p.note && <span className="chart-stats__note">{p.note}</span>}
+          </div>
+        ))}
+      </div>
+    </ChartFrame>
+  )
+}
+
+function formatValue(value: number, unit?: string) {
+  if (unit === 'B') {
+    if (value >= 1) return `$${value}B`
+    return `$${(value * 1000).toFixed(0)}M`
+  }
+  if (unit === 'M') return `$${value}M`
+  if (unit === '%') return `${value}%`
+  if (unit === '$') return `$${value}`
+  if (Number.isInteger(value)) return value.toLocaleString('en-US')
+  return String(value)
+}
