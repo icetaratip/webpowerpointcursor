@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { brands } from './brands'
 import { Chart } from './Charts'
 import { Icon } from './icons'
@@ -98,6 +98,107 @@ function InlineText({ text }: { text: string }) {
   )
 }
 
+interface CountParts {
+  raw: string
+  prefix: string
+  suffix: string
+  end: number
+  decimals: number
+  useGrouping: boolean
+}
+
+function parseCountParts(display: string | number | undefined, fallback?: number): CountParts | null {
+  const raw = String(display ?? fallback ?? '').trim()
+  const match = raw.match(/-?\d+(?:,\d{3})*(?:\.\d+)?|-?\d+(?:\.\d+)?/)
+
+  if (!raw || !match || match.index === undefined) return null
+
+  const numericText = match[0].replace(/,/g, '')
+  const end = Number(numericText)
+
+  if (!Number.isFinite(end)) return null
+
+  const isYearLike = /^\d{4}$/.test(numericText) && end >= 1900 && end <= 2100
+
+  return {
+    raw,
+    prefix: raw.slice(0, match.index),
+    suffix: raw.slice(match.index + match[0].length),
+    end,
+    decimals: numericText.includes('.') ? numericText.split('.')[1]?.length ?? 0 : 0,
+    useGrouping: raw.includes(',') || (!isYearLike && Math.abs(end) >= 10000),
+  }
+}
+
+function formatCountValue(value: number, parts: CountParts) {
+  const fixed = parts.decimals > 0 ? value.toFixed(parts.decimals) : String(Math.round(value))
+
+  if (!parts.useGrouping) return fixed
+
+  const [whole, decimal] = fixed.split('.')
+  const grouped = Number(whole).toLocaleString('en-US')
+
+  return decimal ? `${grouped}.${decimal}` : grouped
+}
+
+function CountUpValue({
+  display,
+  value,
+  delay = 0,
+}: {
+  display: string | number | undefined
+  value?: number
+  delay?: number
+}) {
+  const parts = useMemo(() => parseCountParts(display, value), [display, value])
+  const [current, setCurrent] = useState(0)
+
+  useEffect(() => {
+    if (!parts) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (reduceMotion) {
+      setCurrent(parts.end)
+      return
+    }
+
+    let frame = 0
+    const duration = 1450
+    const timeout = window.setTimeout(() => {
+      const startedAt = performance.now()
+
+      const tick = (now: number) => {
+        const progress = Math.min((now - startedAt) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 4)
+
+        setCurrent(parts.end * eased)
+
+        if (progress < 1) frame = window.requestAnimationFrame(tick)
+      }
+
+      frame = window.requestAnimationFrame(tick)
+    }, delay)
+
+    setCurrent(0)
+
+    return () => {
+      window.clearTimeout(timeout)
+      window.cancelAnimationFrame(frame)
+    }
+  }, [delay, parts])
+
+  if (!parts) return <strong>{display ?? value}</strong>
+
+  return (
+    <strong className="count-up" aria-label={parts.raw}>
+      {parts.prefix}
+      {formatCountValue(current, parts)}
+      {parts.suffix}
+    </strong>
+  )
+}
+
 function LogoStrip({ logos, compact = false }: { logos?: Slide['logos']; compact?: boolean }) {
   if (!logos?.length) return null
 
@@ -192,9 +293,9 @@ function HeroSection({ cover, highlights }: { cover?: Slide; highlights?: Slide 
         <WorkspacePreview />
         <div className="hero__stats" aria-label="ตัวเลขสำคัญ">
           {primaryStats.map((point, index) => (
-            <article key={point.label} {...aos(index * 70)}>
+            <article className="hero__stat-card" key={point.label} {...aos(index * 70)}>
               <span>{compact(point.label, 34)}</span>
-              <strong>{point.display ?? point.value}</strong>
+              <CountUpValue display={point.display} value={point.value} delay={220 + index * 140} />
             </article>
           ))}
         </div>
@@ -687,9 +788,50 @@ function ClosingSection({ closing }: { closing?: Slide }) {
   )
 }
 
-function SiteHeader({ activeId }: { activeId: string }) {
+function FinalVideoSection() {
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    const section = document.getElementById('video-finale')
+    if (!video || !section) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isVisible = Boolean(entry?.isIntersecting && entry.intersectionRatio > 0.36)
+
+        if (isVisible) {
+          video.currentTime = 0
+          void video.play().catch(() => undefined)
+          return
+        }
+
+        video.pause()
+      },
+      { threshold: [0, 0.36, 0.72] },
+    )
+
+    observer.observe(section)
+
+    return () => {
+      observer.disconnect()
+      video.pause()
+    }
+  }, [])
+
   return (
-    <header className="site-header">
+    <section className="video-finale" id="video-finale" aria-label="วิดีโอปิดท้าย">
+      <video ref={videoRef} className="video-finale__media" muted loop playsInline preload="metadata" aria-hidden="true">
+        <source src="/v/v.mp4" type="video/mp4" />
+      </video>
+      <div className="video-finale__shade" aria-hidden="true" />
+    </section>
+  )
+}
+
+function SiteHeader({ activeId, hidden = false }: { activeId: string; hidden?: boolean }) {
+  return (
+    <header className={`site-header${hidden ? ' is-hidden' : ''}`}>
       <a className="brand-mark" href="#story" aria-label="ไปหน้าแรก">
         <img src={brands.cursor} alt="" width={24} height={24} />
         <span>Cursor</span>
@@ -708,6 +850,7 @@ function SiteHeader({ activeId }: { activeId: string }) {
 
 export default function App() {
   const [activeId, setActiveId] = useState<string>('story')
+  const [isVideoActive, setIsVideoActive] = useState(false)
 
   const mapped = useMemo(() => {
     const features = [
@@ -778,10 +921,25 @@ export default function App() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    const videoSection = document.getElementById('video-finale')
+    if (!videoSection) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVideoActive(Boolean(entry?.isIntersecting && entry.intersectionRatio > 0.28))
+      },
+      { threshold: [0, 0.28, 0.6] },
+    )
+
+    observer.observe(videoSection)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="site-shell">
       <a className="skip-link" href="#story">ข้ามไปยังเนื้อหา</a>
-      <SiteHeader activeId={activeId} />
+      <SiteHeader activeId={activeId} hidden={isVideoActive} />
 
       <main>
         <HeroSection cover={mapped.cover} highlights={mapped.highlights} />
@@ -804,6 +962,8 @@ export default function App() {
       <footer className="site-footer">
         <span>Anysphere &amp; Cursor / Product Story</span>
       </footer>
+
+      <FinalVideoSection />
     </div>
   )
 }
