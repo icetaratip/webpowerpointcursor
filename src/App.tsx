@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { id: 'demo', label: 'Demo' },
   { id: 'proof', label: 'Proof' },
   { id: 'team', label: 'Team' },
+  { id: 'deal', label: 'Deal' },
   { id: 'future', label: 'Capital' },
   { id: 'closing', label: 'Close' },
 ] as const
@@ -512,6 +513,82 @@ function TeamSection({ team }: { team?: Slide }) {
   )
 }
 
+function DealSection({ deal }: { deal?: Slide }) {
+  const [isImageOpen, setIsImageOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isImageOpen) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsImageOpen(false)
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isImageOpen])
+
+  if (!deal) return null
+
+  return (
+    <section className="chapter chapter--deal" id="deal" aria-labelledby="deal-title">
+      <div className="deal-shell" {...aos(0)}>
+        <div className="deal-kicker">
+          <IconBadge icon={deal.icon ?? 'rocket'} />
+          <span>{deal.kicker}</span>
+        </div>
+
+        <div className="deal-grid">
+          <div className="deal-copy" {...aos(0, 'fade-right')}>
+            {deal.logos?.[0] && <img className="deal-logo" src={deal.logos[0].src} alt={deal.logos[0].alt} loading="lazy" />}
+            <h2 id="deal-title">
+              <DisplayTitle title={deal.title} />
+            </h2>
+          </div>
+
+          <div className="deal-brief" {...aos(140, 'fade-left')}>
+            {deal.heroImage && (
+              <button className="deal-image-button" type="button" onClick={() => setIsImageOpen(true)} aria-label="เปิดรูปขนาดใหญ่">
+                <img
+                  className="deal-image"
+                  src={deal.heroImage}
+                  alt="SpaceX และ Cursor"
+                  loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.style.display = 'none'
+                  }}
+                />
+              </button>
+            )}
+            <p>{deal.lead}</p>
+            <div className="deal-points" aria-label="รายละเอียดข้อตกลง">
+              <span>All-stock deal</span>
+              <span>Q3 2026 close</span>
+              <span>Strategic AI asset</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {deal.heroImage && isImageOpen && (
+        <div className="image-modal" role="dialog" aria-modal="true" aria-label="รูปภาพขนาดใหญ่" onClick={() => setIsImageOpen(false)}>
+          <div className="image-modal__panel" onClick={(event) => event.stopPropagation()}>
+            <button className="image-modal__close" type="button" onClick={() => setIsImageOpen(false)}>
+              ปิด
+            </button>
+            <img src={deal.heroImage} alt="SpaceX และ Cursor" />
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
 function FutureSection({ future }: { future?: Slide }) {
   const capitalCards: Array<{ logo?: string; mark?: string; title: string; text: string }> = [
     {
@@ -654,6 +731,7 @@ export default function App() {
       enterprise: findSlide('pricing-team-ent'),
       risks: findSlide('risks'),
       team: findSlide('team'),
+      deal: findSlide('spacex'),
       future: findSlide('future'),
       closing: findSlide('closing'),
       features,
@@ -718,6 +796,7 @@ export default function App() {
         />
         <MarketSection business={mapped.business} revenue={mapped.revenue} pricing={mapped.pricing} enterprise={mapped.enterprise} />
         <TeamSection team={mapped.team} />
+        <DealSection deal={mapped.deal} />
         <FutureSection future={mapped.future} />
         <ClosingSection closing={mapped.closing} />
       </main>

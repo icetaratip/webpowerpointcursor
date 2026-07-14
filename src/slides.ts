@@ -481,7 +481,7 @@ export const slides: Slide[] = [
     lead: 'ข้อตกลงในรูปแบบหุ้นทั้งหมด มีแผนปิดธุรกรรมภายในไตรมาสที่ 3 ของปี 2026 — แสดงว่า Cursor ไม่ได้เป็นเพียงเครื่องมือช่วยเติมโค้ด แต่เป็นสินทรัพย์เชิงกลยุทธ์ในตลาด AI สำหรับองค์กร',
     logos: [{ src: brands.spacex, alt: 'SpaceX' }],
     heroImage:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzZtLr1I8kOalGvDsKxNuAVq_JRaPdZijAAHvJ1qzUwK1G8HWxvyAEdnA&s=10',
+      'https://scontent.furt2-1.fna.fbcdn.net/v/t39.99422-6/725966975_1700989597767602_4934899488893531981_n.png?stp=dst-jpg_tt6&cstp=mx1440x1800&ctp=s1440x1800&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=mmIEDYv7cuMQ7kNvwEAIJfV&_nc_oc=AdoIC6WLcTPV57eDQaW1K09NjxsFV04s91UovLM-cgtve6ReeVAU7t5VAkK026caf1Zze92zFfU1dgOuOA6ogSo9&_nc_zt=14&_nc_ht=scontent.furt2-1.fna&_nc_gid=BwIjXFVqBmLih-6JVO_WHw&_nc_ss=7b2a8&oh=00_AQBdZs4aD0bsoIDQItpbGyez5Rr7qYEfYLCvihEAJ9y0nw&oe=6A5C3E13',
   },
   {
     id: 'future',
@@ -533,7 +533,7 @@ export const slides: Slide[] = [
     id: 'closing',
     kind: 'closing',
     icon: 'sparkles',
-    kicker: '11 · สรุป',
+    kicker: 'สรุป',
     title: 'Cursor ช่วยให้สร้าง แก้ไข วิเคราะห์\nและตรวจโค้ดเร็วขึ้น',
     lead: 'Anysphere ประสบความสำเร็จจากการมองเห็นปัญหาของนักพัฒนา และนำ AI มาปรับเปลี่ยนกระบวนการเขียนโปรแกรม — ไม่จำเป็นต้องสร้างเทคโนโลยีทุกอย่างขึ้นมาใหม่ แต่แปลงสิ่งที่มีให้เป็นประสบการณ์ที่แก้ปัญหาลูกค้าได้ชัด',
     logos: [{ src: brands.cursor, alt: 'Cursor' }],
