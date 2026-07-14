@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { brands } from './brands'
 
 const USER_PROMPT = 'เพิ่มระบบ Login ให้ Frontend กับ Backend สอดคล้องกัน รวม schema ด้วย'
 
@@ -167,11 +168,6 @@ export function IdeDemo() {
           </span>
           {running ? 'กำลังรัน…' : 'Test'}
         </button>
-        <p className="ide-demo__hint">
-          {phase === 'done'
-            ? 'เสร็จแล้ว — กด Test อีกครั้งเพื่อเล่นซ้ำ'
-            : 'กด Test เพื่อดู Agent รับคำสั่งและแก้โค้ดหลายไฟล์'}
-        </p>
       </div>
 
       <div
@@ -188,7 +184,7 @@ export function IdeDemo() {
             <span />
           </div>
           <div className="ide__title">
-            <img src="/icons/cursor/mono.svg" alt="" width={14} height={14} />
+            <img src={brands.cursor} alt="" width={14} height={14} />
             Cursor — checkout-flow · Agent
           </div>
           <div className={`ide__badge${phase === 'thinking' || phase === 'editing' ? ' is-pulse' : ''}`}>

@@ -1,17 +1,19 @@
-/** Local icons in /public/icons + thesvg.org / jsDelivr CDN */
-export const brand = (slug: string, variant = 'default') =>
-  `https://thesvg.org/icons/${slug}/${variant}.svg`
+/** Brand icons via glincker/thesvg on jsDelivr */
+const CDN = 'https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons'
+
+export const brand = (slug: string, variant = 'mono') =>
+  `${CDN}/${slug}/${variant}.svg`
 
 export const brands = {
-  cursor: '/icons/cursor/mono.svg',
-  openai: '/icons/openai/dark.svg',
+  cursor: brand('cursor'),
+  openai: brand('openai', 'light'),
   github: brand('github'),
   nvidia: brand('nvidia'),
-  uber: '/icons/uber/mono.svg',
+  uber: brand('uber'),
   adobe: brand('adobe'),
   spacex: brand('spacex'),
   vscode: brand('visual-studio-code'),
-  anthropic: 'https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/anthropic/mono.svg',
+  anthropic: brand('anthropic'),
   google: brand('google'),
   amazon: brand('amazon'),
   replit: brand('replit'),

@@ -16,12 +16,12 @@ export interface ChartConfig {
   points: ChartPoint[]
 }
 
-const ACCENT = '#0b6b52'
-const ACCENT_MID = '#1a9b74'
-const ACCENT_SOFT = '#9fd4c2'
-const INK = '#10151c'
-const MUTED = '#5a687a'
-const TRACK = 'rgba(16, 21, 28, 0.08)'
+const ACCENT = '#111111'
+const ACCENT_MID = '#555550'
+const ACCENT_SOFT = '#9a9a94'
+const INK = '#111111'
+const MUTED = '#777771'
+const TRACK = 'rgba(16, 16, 16, 0.12)'
 
 export function Chart({ chart }: { chart: ChartConfig }) {
   switch (chart.type) {
@@ -117,7 +117,7 @@ function LineChart({ chart }: { chart: ChartConfig }) {
         <path d={line} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinejoin="round" className="chart-line__path" />
         {coords.map((c) => (
           <g key={c.label}>
-            <circle cx={c.x} cy={c.y} r="5" fill="#fff" stroke={ACCENT} strokeWidth="2" />
+            <circle cx={c.x} cy={c.y} r="5" fill="#ffffff" stroke={ACCENT} strokeWidth="2" />
             <text x={c.x} y={h - 10} textAnchor="middle" fill={MUTED} fontSize="11" fontFamily="IBM Plex Mono, monospace">
               {c.label}
             </text>
@@ -237,9 +237,6 @@ function StatRow({ chart }: { chart: ChartConfig }) {
           )
         })}
       </div>
-      {chart.points.some((p) => p.usdScale) && (
-        <p className="chart-stats__fx">อัตราแลกเปลี่ยนอ้างอิง ~33.5 บาท / USD</p>
-      )}
     </ChartFrame>
   )
 }

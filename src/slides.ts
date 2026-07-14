@@ -19,6 +19,7 @@ export interface SlideItem {
   text: string
   icon?: IconName
   image?: string
+  images?: string[]
   logo?: string
 }
 
@@ -60,8 +61,18 @@ export const slides: Slide[] = [
     icon: 'landmark',
     kicker: 'ประวัติความเป็นมา',
     title: 'AI เป็นผู้ช่วยเขียนโปรแกรมใน IDE',
-    lead: 'Cursor ถูกสร้างขึ้นโดยมีแนวคิดว่า AI ไม่ควรเป็นเพียงผู้ช่วยตอบคำถาม แต่ควรเป็นผู้ช่วยเขียนโปรแกรมภายใน IDE ทำให้นักพัฒนาสามารถสั่ง AI ให้สร้าง แก้ไข และอธิบายโค้ดได้โดยไม่ต้องสลับไปใช้เว็บไซต์ภายนอก',
-    logos: [{ src: brands.cursor, alt: 'Cursor' }],
+    lead: 'Cursor เป็นโปรแกรมแก้ไขโค้ด (AI Code Editor) ที่พัฒนาโดยบริษัท Anysphere Inc. ก่อตั้งในปี 2022 ถูกสร้างขึ้นโดยมีแนวคิดว่า AI ไม่ควรเป็นเพียงผู้ช่วยตอบคำถาม แต่ควรเป็นผู้ช่วยเขียนโปรแกรมภายใน IDE ทำให้นักพัฒนาสามารถสั่ง AI ให้สร้าง แก้ไข และอธิบายโค้ดได้โดยไม่ต้องสลับไปใช้เว็บไซต์ภายนอก',
+    logos: [
+      { src: brands.cursor, alt: 'Cursor' },
+      { src: brands.vscode, alt: 'VS Code' },
+      { src: brands.openai, alt: 'OpenAI' },
+    ],
+    body: [
+      'ทีมผู้ก่อตั้งจาก MIT นำโดย Michael Truell วางตำแหน่ง Cursor ให้เป็น IDE ที่ออกแบบเพื่อ AI ตั้งแต่ต้น',
+      'พัฒนาบนพื้นฐานของ Visual Studio Code (VS Code) ทำให้ใช้งานร่วมกับส่วนขยายของ VS Code ได้เกือบทั้งหมด',
+      'ปัจจุบัน Cursor ได้รับความนิยมอย่างมากในหมู่นักพัฒนาซอฟต์แวร์ทั่วโลก',
+      'ได้รับเงินลงทุนจากกองทุนชั้นนำ เช่น OpenAI Startup Fund, Andreessen Horowitz (a16z) และ Thrive Capital เพื่อสนับสนุนการเติบโตของบริษัทและการพัฒนาผลิตภัณฑ์ต่อไป',
+    ],
   },
   {
     id: 'team',
@@ -113,13 +124,12 @@ export const slides: Slide[] = [
     icon: 'terminal',
     kicker: 'ตัวอย่างการทำงานใน IDE',
     title: 'เห็นภาพ Cursor ทำงานจริง',
-    lead: 'Agent รับคำสั่งภาษาธรรมชาติ → อ่านโปรเจกต์ → แก้หลายไฟล์พร้อมกัน ขณะที่ Tab เติมโค้ดตามบริบท',
+    lead: 'Agent รับคำสั่ง → อ่านโปรเจกต์ → แก้หลายไฟล์พร้อมกัน ขณะที่ Tab เติมโค้ดตามบริบท',
     showIde: true,
     logos: [
       { src: brands.cursor, alt: 'Cursor' },
       { src: brands.vscode, alt: 'VS Code' },
     ],
-    footnote: 'กด Test เพื่อดู Agent แก้โค้ดหลายไฟล์แบบอนิเมชัน',
   },
   {
     id: 'highlights',
@@ -171,8 +181,8 @@ export const slides: Slide[] = [
     kind: 'grid',
     icon: 'blocks',
     kicker: 'ลักษณะธุรกิจ',
-    title: 'Software as a Service (SaaS)',
-    lead: 'Cursor ดำเนินธุรกิจในรูปแบบ Software as a Service (SaaS) โดยพัฒนา AI Code Editor สำหรับ',
+    title: 'ลักษณะธุรกิจ',
+    lead: 'Cursor ดำเนินธุรกิจในรูปแบบ Software as a Service (SaaS) โดยให้บริการ AI Code Editor สำหรับนักพัฒนา ทีม และองค์กร',
     items: [
       { label: '01', text: 'นักพัฒนาซอฟต์แวร์', icon: 'code' },
       { label: '02', text: 'นักศึกษา', icon: 'school' },
@@ -204,8 +214,16 @@ export const slides: Slide[] = [
       { label: '05', text: 'Auto Complete อัจฉริยะ', icon: 'sparkles' },
       {
         label: '06',
-        text: 'รองรับหลายภาษา เช่น Python, JavaScript, TypeScript, Java, PHP, Go, C++, Rust เป็นต้น',
+        text: 'รองรับหลายภาษา',
         icon: 'code',
+        images: [
+          '/logos/python.svg',
+          '/logos/javascript.svg',
+          '/logos/go.svg',
+          '/logos/php.svg',
+          '/logos/vue.svg',
+          '/logos/nextdotjs.svg',
+        ],
       },
       {
         label: '07',
@@ -350,8 +368,16 @@ export const slides: Slide[] = [
       { label: '05', text: 'Auto Complete อัจฉริยะ', icon: 'sparkles' },
       {
         label: '06',
-        text: 'รองรับหลายภาษา เช่น Python, JavaScript, TypeScript, Java, PHP, Go, C++, Rust เป็นต้น',
+        text: 'รองรับหลายภาษา',
         icon: 'code',
+        images: [
+          '/logos/python.svg',
+          '/logos/javascript.svg',
+          '/logos/go.svg',
+          '/logos/php.svg',
+          '/logos/vue.svg',
+          '/logos/nextdotjs.svg',
+        ],
       },
       {
         label: '07',
@@ -460,10 +486,10 @@ export const slides: Slide[] = [
   {
     id: 'future',
     kind: 'quote',
-    icon: 'brain',
-    kicker: 'วิสัยทัศน์ของ Cursor',
-    title: 'จากผู้พิมพ์ทุกบรรทัด\nสู่ผู้กำหนดเป้าหมาย',
-    lead: 'อุตสาหกรรมกำลังเข้าสู่ยุคที่ AI Agent รับงานขนาดใหญ่และทำงานได้นานขึ้นโดยต้องการคำสั่งจากมนุษย์น้อยลง — นักพัฒนาเปลี่ยนบทบาทเป็นผู้กำหนดเป้าหมาย ตรวจสอบ และควบคุมงานของ AI Agent',
+    icon: 'landmark',
+    kicker: 'เงินลงทุนจาก Venture Capital',
+    title: 'เงินทุนที่เร่งการเติบโตของ Cursor',
+    lead: 'Cursor ได้รับเงินลงทุนจากกองทุน Venture Capital ชั้นนำ ได้แก่ OpenAI Startup Fund, Andreessen Horowitz (a16z) และ Thrive Capital เพื่อนำไปพัฒนาผลิตภัณฑ์ ขยายทีมงาน และเร่งการเติบโตของธุรกิจ AI Code Editor ทำให้บริษัทสามารถแข่งขันในตลาด AI สำหรับนักพัฒนาซอฟต์แวร์ได้อย่างรวดเร็ว',
   },
   {
     id: 'success',
@@ -494,7 +520,7 @@ export const slides: Slide[] = [
     items: [
       { label: 'คุณภาพโค้ด', text: 'AI อาจสร้างโค้ดผิดพลาดหรือมีช่องโหว่', icon: 'bug' },
       { label: 'การตรวจสอบ', text: 'ผู้ใช้ยังต้องตรวจสอบผลลัพธ์จาก AI', icon: 'eye' },
-      { label: 'ต้นทุน', text: 'ค่าใช้จ่ายด้านโมเดล AI และ Cloud อยู่ในระดับสูง', icon: 'dollar' },
+      { label: 'ต้นทุน', text: 'ค่าใช้จ่ายโมเดลและ Cloud อยู่ในระดับสูง', icon: 'dollar' },
       { label: 'การแข่งขัน', text: 'มีการแข่งขันจากบริษัทเทคโนโลยีขนาดใหญ่', icon: 'git' },
       { label: 'ความเป็นส่วนตัว', text: 'มีความกังวลเรื่องความเป็นส่วนตัวของ Source Code', icon: 'lock' },
       { label: 'พึ่งพาภายนอก', text: 'อาจพึ่งพาโมเดล AI จากผู้ให้บริการภายนอก', icon: 'cpu' },
@@ -508,14 +534,14 @@ export const slides: Slide[] = [
     kind: 'closing',
     icon: 'sparkles',
     kicker: '11 · สรุป',
-    title: 'Cursor ช่วยให้สร้าง\nแก้ไข วิเคราะห์ และตรวจโค้ดเร็วขึ้น',
+    title: 'Cursor ช่วยให้สร้าง แก้ไข วิเคราะห์\nและตรวจโค้ดเร็วขึ้น',
     lead: 'Anysphere ประสบความสำเร็จจากการมองเห็นปัญหาของนักพัฒนา และนำ AI มาปรับเปลี่ยนกระบวนการเขียนโปรแกรม — ไม่จำเป็นต้องสร้างเทคโนโลยีทุกอย่างขึ้นมาใหม่ แต่แปลงสิ่งที่มีให้เป็นประสบการณ์ที่แก้ปัญหาลูกค้าได้ชัด',
     logos: [{ src: brands.cursor, alt: 'Cursor' }],
     body: [
-      'รายได้: สมาชิกรายเดือน/ปี · แพ็กเกจทีม · Enterprise · ค่าใช้ AI เพิ่มเติม',
-      'จุดแข็งของ Cursor: ใช้งานง่าย · เข้าใจโค้ดทั้งโปรเจกต์ · รองรับทั้งบุคคลและองค์กร',
-      'บทเรียน: Product-Led Growth + Freemium + Timing + แก้ปัญหาจริง',
+      'รายได้: สมาชิก · ทีม · Enterprise · ค่าใช้ AI เพิ่มเติม',
+      'จุดแข็ง: ใช้งานง่าย · เข้าใจทั้งโปรเจกต์ · รองรับองค์กร',
+      'บทเรียน: Product-Led Growth · Freemium · Timing · แก้ปัญหาจริง',
     ],
-    footnote: 'ขอบคุณ · Anysphere & Cursor Case Study',
+    footnote: 'ขอบคุณ · Anysphere & Cursor Study',
   },
 ]
