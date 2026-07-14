@@ -1267,6 +1267,23 @@ main {
   max-width: 920px;
 }
 
+.team-group-photo {
+  width: 100%;
+  margin: 0 0 20px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.team-group-photo img {
+  width: 100%;
+  height: clamp(320px, 42vw, 620px);
+  object-fit: cover;
+  object-position: center;
+  outline: 0;
+}
+
 .team-wall {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1343,6 +1360,36 @@ main {
   color: var(--text-soft);
   font-size: 14px;
   line-height: 1.55;
+}
+
+.team-card__role {
+  font-weight: 600;
+}
+
+.team-card__duties {
+  display: grid;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-card__duties li {
+  position: relative;
+  padding-left: 16px;
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.team-card__duties li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 6px;
+  height: 1px;
+  background: var(--accent);
 }
 
 .chapter--deal {
@@ -1824,6 +1871,47 @@ main {
   max-height: 240px;
 }
 
+.chart-line__grid {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.chart-line__area {
+  opacity: 0;
+  transform: translateY(10px) scaleY(0.84);
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+.chart-line__path {
+  stroke-dasharray: var(--line-length);
+  stroke-dashoffset: var(--line-length);
+}
+
+.chart-line__point {
+  opacity: 0;
+  transform: translateY(8px) scale(0.92);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.chart-line.is-animated .chart-line__grid {
+  animation: chartGridIn 520ms var(--ease-out) both;
+}
+
+.chart-line.is-animated .chart-line__area {
+  animation: chartAreaIn 900ms var(--ease-out) 540ms both;
+}
+
+.chart-line.is-animated .chart-line__path {
+  animation: chartLineDraw 1250ms var(--ease-out) 220ms both;
+}
+
+.chart-line.is-animated .chart-line__point {
+  animation: chartPointIn 420ms var(--ease-out) both;
+  animation-delay: calc(620ms + (var(--point-index) * 130ms));
+}
+
 .chart-bars,
 .chart-donut__legend,
 .chart-funnel {
@@ -1981,17 +2069,49 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
-.chart-line__path,
-.chart-line__area {
-  animation: fadeIn 480ms var(--ease-out) both;
-}
-
-@keyframes fadeIn {
+@keyframes chartGridIn {
   from {
     opacity: 0;
+    transform: translateY(4px);
   }
+
   to {
     opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes chartAreaIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scaleY(0.84);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes chartLineDraw {
+  from {
+    stroke-dashoffset: var(--line-length);
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes chartPointIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -2145,23 +2265,39 @@ main {
   list-style: none;
 }
 
-.ide__sidebar li {
+.ide__sidebar button {
+  display: block;
+  width: 100%;
   padding: 6px 8px;
+  border: 0;
   border-radius: 8px;
+  background: transparent;
   color: var(--muted);
+  font: inherit;
+  text-align: left;
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
 }
 
-.ide__sidebar li.is-folder {
+.ide__sidebar button:disabled {
+  cursor: default;
+}
+
+.ide__sidebar button:not(:disabled):hover {
+  color: var(--text);
+  background: rgba(16, 16, 16, 0.06);
+}
+
+.ide__sidebar button.is-folder {
   color: var(--text-soft);
 }
 
-.ide__sidebar li.is-active,
-.ide__sidebar li.is-scanning {
+.ide__sidebar button.is-active,
+.ide__sidebar button.is-scanning {
   color: var(--text);
   background: rgba(16, 16, 16, 0.08);
 }
 
-.ide__sidebar li.is-changed::after {
+.ide__sidebar button.is-changed::after {
   content: " M";
   color: var(--accent-2);
 }
@@ -2187,19 +2323,28 @@ main {
   display: none;
 }
 
-.ide__tabs span {
+.ide__tabs button {
   flex: 0 0 auto;
   padding: 8px 12px;
+  border: 0;
   border-radius: 4px 4px 0 0;
+  background: transparent;
   color: var(--muted);
+  font: inherit;
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
 }
 
-.ide__tabs span.is-on {
+.ide__tabs button:not(:disabled):hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.ide__tabs button.is-on {
   background: #fff;
   color: var(--text);
 }
 
-.ide__tabs span.is-dirty::after {
+.ide__tabs button.is-dirty::after {
   content: " *";
   color: var(--accent-2);
 }
@@ -2400,6 +2545,24 @@ main {
   color: var(--muted);
 }
 
+.ide__composer > span {
+  display: none;
+}
+
+.ide__composer input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+
+.ide__composer input::placeholder {
+  color: var(--muted);
+}
+
 .ide__composer kbd {
   padding: 2px 5px;
   border-radius: 5px;
@@ -2410,6 +2573,28 @@ main {
 
 .ide__composer kbd:first-of-type {
   margin-left: auto;
+}
+
+.ide__composer button {
+  min-width: 44px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  transition: opacity 140ms var(--ease-out), transform 140ms var(--ease-out);
+}
+
+.ide__composer button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.ide__composer button:not(:disabled):active {
+  transform: scale(0.96);
 }
 
 .ide__status {
@@ -2870,5 +3055,16 @@ main {
 
   .hero__stat-card::after {
     display: none;
+  }
+
+  .chart-line__grid,
+  .chart-line__area,
+  .chart-line__point {
+    opacity: 1;
+    transform: none;
+  }
+
+  .chart-line__path {
+    stroke-dashoffset: 0;
   }
 }

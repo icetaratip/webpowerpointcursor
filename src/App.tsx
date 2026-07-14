@@ -590,6 +590,19 @@ function TeamSection({ team }: { team?: Slide }) {
         </div>
       </div>
 
+      {team?.heroImage && (
+        <figure className="team-group-photo" {...aos(90)}>
+          <img
+            src={team.heroImage}
+            alt="ทีมผู้ร่วมก่อตั้ง Cursor ยืนรวมกัน"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.closest('.team-group-photo')?.remove()
+            }}
+          />
+        </figure>
+      )}
+
       <div className="team-wall">
         {team?.items?.map((item, index) => {
           const person = splitPerson(item.text)
@@ -604,7 +617,14 @@ function TeamSection({ team }: { team?: Slide }) {
                   <small>{String(index + 1).padStart(2, '0')}</small>
                 </div>
                 <h3>{person.name}</h3>
-                {person.title && <p>{person.title}</p>}
+                {(item.note || person.title) && <p className="team-card__role">{item.note ?? person.title}</p>}
+                {item.bullets?.length && (
+                  <ul className="team-card__duties">
+                    {item.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </article>
           )

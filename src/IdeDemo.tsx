@@ -44,6 +44,22 @@ const FILE_CONTENT: Record<string, { before: string[]; after: string[] }> = {
       ');',
     ],
   },
+  'api/login.ts': {
+    before: ["export async function POST() {", '  return Response.json({ ok: false })', '}'],
+    after: [
+      "import { verifyPassword } from './auth'",
+      '',
+      'export async function POST(req: Request) {',
+      '  const { email, pass } = await req.json()',
+      '  const user = await verifyPassword(email, pass)',
+      '  return Response.json({ user })',
+      '}',
+    ],
+  },
+  'styles.css': {
+    before: ['.login {', '  display: grid;', '}'],
+    after: ['.login {', '  display: grid;', '  gap: 12px;', '  max-width: 360px;', '}'],
+  },
 }
 
 const EDIT_SEQUENCE = ['App.tsx', 'auth.ts', 'schema.sql'] as const
@@ -74,6 +90,7 @@ export function IdeDemo() {
   const [showGhost, setShowGhost] = useState(false)
   const [statusFiles, setStatusFiles] = useState(0)
   const [showCaret, setShowCaret] = useState(false)
+  const [composerValue, setComposerValue] = useState('')
 
   const reset = useCallback(() => {
     setPhase('idle')
@@ -89,7 +106,19 @@ export function IdeDemo() {
     setShowCaret(false)
   }, [])
 
-  const runDemo = useCallback(async () => {
+  const openFile = useCallback(
+    (file: string) => {
+      const content = FILE_CONTENT[file]
+      if (!content || running) return
+
+      const hasChanged = changedFiles.includes(file) || dirtyTabs.includes(file)
+      setActiveTab(file)
+      setVisibleLines(hasChanged ? content.after : content.before)
+    },
+    [changedFiles, dirtyTabs, running],
+  )
+
+  const runDemo = useCallback(async (nextPrompt = USER_PROMPT) => {
     runRef.current?.abort()
     const controller = new AbortController()
     runRef.current = controller
@@ -99,10 +128,11 @@ export function IdeDemo() {
       setRunning(true)
       reset()
 
+      const prompt = nextPrompt.trim() || USER_PROMPT
       setPhase('prompt')
-      for (let i = 0; i <= USER_PROMPT.length; i++) {
+      for (let i = 0; i <= prompt.length; i++) {
         await wait(28, signal)
-        setPromptText(USER_PROMPT.slice(0, i))
+        setPromptText(prompt.slice(0, i))
       }
       await wait(500, signal)
 
@@ -152,6 +182,8 @@ export function IdeDemo() {
   useEffect(() => () => runRef.current?.abort(), [])
 
   const sidebarFiles = ['src', 'App.tsx', 'auth.ts', 'api/login.ts', 'schema.sql', 'styles.css']
+  const tabs = ['App.tsx', 'auth.ts', 'schema.sql']
+  const canSubmit = !running && composerValue.trim().length > 0
 
   return (
     <div className="ide-demo">
@@ -159,7 +191,7 @@ export function IdeDemo() {
         <button
           type="button"
           className="ide-demo__test"
-          onClick={() => void runDemo()}
+          onClick={() => void runDemo(composerValue)}
           disabled={running}
           aria-busy={running}
         >
@@ -203,18 +235,23 @@ export function IdeDemo() {
                 const isScanning = phase === 'editing' && activeTab === file
 
                 return (
-                  <li
-                    key={file}
-                    className={[
-                      isFolder ? 'is-folder' : '',
-                      isActive ? 'is-active' : '',
-                      isChanged ? 'is-changed' : '',
-                      isScanning ? 'is-scanning' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    {file}
+                  <li key={file}>
+                    <button
+                      type="button"
+                      className={[
+                        isFolder ? 'is-folder' : '',
+                        isActive ? 'is-active' : '',
+                        isChanged ? 'is-changed' : '',
+                        isScanning ? 'is-scanning' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => openFile(file)}
+                      disabled={isFolder || running}
+                      aria-current={isActive ? 'true' : undefined}
+                    >
+                      {file}
+                    </button>
                   </li>
                 )
               })}
@@ -223,8 +260,9 @@ export function IdeDemo() {
 
           <section className="ide__editor">
             <div className="ide__tabs">
-              {['App.tsx', 'auth.ts', 'schema.sql'].map((tab) => (
-                <span
+              {tabs.map((tab) => (
+                <button
+                  type="button"
                   key={tab}
                   className={[
                     activeTab === tab ? 'is-on' : '',
@@ -232,9 +270,12 @@ export function IdeDemo() {
                   ]
                     .filter(Boolean)
                     .join(' ')}
+                  onClick={() => openFile(tab)}
+                  disabled={running}
+                  aria-current={activeTab === tab ? 'true' : undefined}
                 >
                   {tab}
-                </span>
+                </button>
               ))}
             </div>
 
@@ -309,11 +350,27 @@ export function IdeDemo() {
               </div>
             )}
 
-            <div className="ide__composer">
+            <form
+              className="ide__composer"
+              onSubmit={(event) => {
+                event.preventDefault()
+                if (!running) void runDemo(composerValue)
+              }}
+            >
+              <input
+                value={composerValue}
+                onChange={(event) => setComposerValue(event.target.value)}
+                placeholder={running ? 'Agent is working...' : 'Ask Cursor...'}
+                disabled={running}
+                aria-label="Prompt Cursor"
+              />
               <span>{running ? 'Agent กำลังทำงาน…' : 'ถาม Cursor…'}</span>
               <kbd>⌘</kbd>
               <kbd>Enter</kbd>
-            </div>
+              <button type="submit" disabled={!canSubmit} aria-label="Send prompt">
+                Enter
+              </button>
+            </form>
           </aside>
         </div>
 

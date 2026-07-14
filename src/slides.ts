@@ -17,6 +17,8 @@ export type SlideKind =
 export interface SlideItem {
   label: string
   text: string
+  note?: string
+  bullets?: string[]
   icon?: IconName
   image?: string
   images?: string[]
@@ -81,25 +83,51 @@ export const slides: Slide[] = [
     kicker: 'ทีมผู้ก่อตั้ง · จาก MIT',
     title: 'ผู้นำที่สร้าง Cursor',
     lead: 'สี่ผู้ก่อตั้งจาก MIT ที่มองเห็นว่า IDE ควรออกแบบมาเพื่อ AI ตั้งแต่ต้น ไม่ใช่แค่ติดปลั๊กอินทีหลัง',
+    heroImage:
+      'https://images.openai.com/static-rsc-4/JlKKDLYvukm39D2GtJc8s2FLBwWBhlL6emDp6ZwUJP3NicyE6KH84trAEzTUf0_YnjW8KgfnFwQ-q8AxNWALWTsVHjedm-gSKRaNkYXi5-vtVfCsYzng3h4I8s4J4V-D1qbG_cWWnwJ_OLHp1qO3YKZ1WbO_4RhxPz_nypfjURweZPXl64FQtaBR1Fweiblm?purpose=fullsize',
     items: [
       {
         label: 'CEO',
-        text: 'Michael Truell — ประธานเจ้าหน้าที่บริหาร',
+        text: 'Michael Truell',
+        note: 'ประธานเจ้าหน้าที่บริหาร (CEO) และผู้ร่วมก่อตั้ง',
+        bullets: [
+          'กำหนดวิสัยทัศน์และทิศทางของบริษัท',
+          'บริหารองค์กรและวางกลยุทธ์การเติบโต',
+          'ดูแลการระดมทุน ความร่วมมือกับพันธมิตร และการขยายธุรกิจ',
+        ],
         image: '/team/michael-truell.jpg',
       },
       {
         label: 'Co-founder',
         text: 'Aman Sanger',
+        note: 'ผู้ร่วมก่อตั้ง (Co-founder)',
+        bullets: [
+          'ร่วมวางแผนและพัฒนาผลิตภัณฑ์ Cursor',
+          'พัฒนาระบบ AI และโครงสร้างการทำงานของซอฟต์แวร์',
+          'สนับสนุนการพัฒนาผลิตภัณฑ์ร่วมกับทีมวิศวกร',
+        ],
         image: '/team/aman-sanger.jpg',
       },
       {
         label: 'Co-founder',
         text: 'Sualeh Asif',
+        note: 'ผู้ร่วมก่อตั้ง (Co-founder)',
+        bullets: [
+          'พัฒนาเทคโนโลยี AI และระบบเบื้องหลัง',
+          'ออกแบบสถาปัตยกรรมซอฟต์แวร์',
+          'ดูแลคุณภาพและประสิทธิภาพของผลิตภัณฑ์',
+        ],
         image: '/team/sualeh-asif.png',
       },
       {
         label: 'Co-founder',
         text: 'Arvid Lunnemark',
+        note: 'ผู้ร่วมก่อตั้ง (Co-founder)',
+        bullets: [
+          'พัฒนาฟีเจอร์หลักของ Cursor',
+          'ปรับปรุงประสบการณ์การใช้งาน (UX/UI)',
+          'เพิ่มประสิทธิภาพเครื่องมือสำหรับนักพัฒนาซอฟต์แวร์',
+        ],
         image: '/team/arvid-lunnemark.jpg',
       },
     ],

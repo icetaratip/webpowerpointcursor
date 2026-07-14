@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 export interface ChartPoint {
   label: string
@@ -75,6 +76,8 @@ function BarChart({ chart }: { chart: ChartConfig }) {
 }
 
 function LineChart({ chart }: { chart: ChartConfig }) {
+  const chartRef = useRef<SVGSVGElement | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
   const w = 520
   const h = 180
   const pad = { t: 16, r: 16, b: 36, l: 8 }
@@ -92,10 +95,47 @@ function LineChart({ chart }: { chart: ChartConfig }) {
 
   const line = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ')
   const area = `${line} L ${coords[coords.length - 1].x} ${pad.t + innerH} L ${coords[0].x} ${pad.t + innerH} Z`
+  const lineLength = coords.reduce((length, c, index) => {
+    if (index === 0) return length
+    const previous = coords[index - 1]
+    return length + Math.hypot(c.x - previous.x, c.y - previous.y)
+  }, 0)
+
+  useEffect(() => {
+    const element = chartRef.current
+    if (!element) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (reduceMotion) {
+      setIsVisible(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '-10% 0px -20% 0px', threshold: [0.24, 0.48] },
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <ChartFrame title={chart.title}>
-      <svg className="chart-line" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={chart.title ?? 'แผนภูมิเส้น'}>
+      <svg
+        ref={chartRef}
+        className={`chart-line${isVisible ? ' is-animated' : ''}`}
+        viewBox={`0 0 ${w} ${h}`}
+        role="img"
+        aria-label={chart.title ?? 'แผนภูมิเส้น'}
+        style={{ '--line-length': lineLength } as CSSProperties}
+      >
         <defs>
           <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={ACCENT} stopOpacity="0.28" />
@@ -105,6 +145,7 @@ function LineChart({ chart }: { chart: ChartConfig }) {
         {[0.25, 0.5, 0.75, 1].map((t) => (
           <line
             key={t}
+            className="chart-line__grid"
             x1={pad.l}
             x2={w - pad.r}
             y1={pad.t + innerH * (1 - t)}
@@ -115,8 +156,8 @@ function LineChart({ chart }: { chart: ChartConfig }) {
         ))}
         <path d={area} fill="url(#lineFill)" className="chart-line__area" />
         <path d={line} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinejoin="round" className="chart-line__path" />
-        {coords.map((c) => (
-          <g key={c.label}>
+        {coords.map((c, index) => (
+          <g key={c.label} className="chart-line__point" style={{ '--point-index': index } as CSSProperties}>
             <circle cx={c.x} cy={c.y} r="5" fill="#ffffff" stroke={ACCENT} strokeWidth="2" />
             <text x={c.x} y={h - 10} textAnchor="middle" fill={MUTED} fontSize="11" fontFamily="IBM Plex Mono, monospace">
               {c.label}
