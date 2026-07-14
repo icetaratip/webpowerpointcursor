@@ -19,6 +19,29 @@ function LogoRow({ logos }: { logos: { src: string; alt: string }[] }) {
   )
 }
 
+function TeamGrid({ items }: { items: NonNullable<Slide['items']> }) {
+  return (
+    <div className="slide__team" role="list" aria-label="ทีมผู้ก่อตั้ง">
+      {items.map((item) => {
+        const split = item.text.indexOf(' — ')
+        const name = split >= 0 ? item.text.slice(0, split) : item.text
+        const subtitle = split >= 0 ? item.text.slice(split + 3) : undefined
+
+        return (
+          <article key={`${item.label}-${item.text}`} className="slide__team-card" role="listitem">
+            {item.image ? (
+              <img className="slide__team-photo" src={item.image} alt={name} loading="lazy" />
+            ) : null}
+            <p className="slide__team-role">{item.label}</p>
+            <h3 className="slide__team-name">{name}</h3>
+            {subtitle ? <p className="slide__team-title">{subtitle}</p> : null}
+          </article>
+        )
+      })}
+    </div>
+  )
+}
+
 function SlideView({ slide, index, total }: { slide: Slide; index: number; total: number }) {
   const side = slide.layout === 'side' && slide.chart
   const isTeam = slide.kind === 'team'
@@ -37,7 +60,7 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
 
       {slide.kicker && (
         <p className="slide__kicker">
-          {slide.icon && <Icon name={slide.icon} size={16} className="slide__kicker-icon" />}
+          {slide.icon && <Icon name={slide.icon} size={18} className="slide__kicker-icon" />}
           {slide.kicker}
         </p>
       )}
@@ -72,7 +95,9 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
             </ul>
           )}
 
-          {slide.items && (
+          {slide.items && isTeam ? <TeamGrid items={slide.items} /> : null}
+
+          {slide.items && !isTeam && (
             <div className={`slide__items slide__items--${slide.kind}`}>
               {slide.items.map((item) => (
                 <div key={`${item.label}-${item.text}`} className={`slide__item${item.image ? ' slide__item--person' : ''}`}>
@@ -134,9 +159,26 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
   )
 }
 
+function isPresentationFullscreen() {
+  if (document.fullscreenElement) return true
+  const win = window as Window & { fullScreen?: boolean }
+  if (win.fullScreen) return true
+  const tol = 2
+  return (
+    Math.abs(window.innerWidth - screen.width) <= tol &&
+    (Math.abs(window.innerHeight - screen.height) <= tol ||
+      Math.abs(window.innerHeight - screen.availHeight) <= tol)
+  )
+}
+
 export default function App() {
   const [index, setIndex] = useState(0)
+  const [hideNav, setHideNav] = useState(false)
   const total = slides.length
+
+  const syncNavVisibility = useCallback(() => {
+    setHideNav(isPresentationFullscreen())
+  }, [])
 
   const go = useCallback(
     (next: number) => {
@@ -144,6 +186,16 @@ export default function App() {
     },
     [total],
   )
+
+  useEffect(() => {
+    syncNavVisibility()
+    document.addEventListener('fullscreenchange', syncNavVisibility)
+    window.addEventListener('resize', syncNavVisibility)
+    return () => {
+      document.removeEventListener('fullscreenchange', syncNavVisibility)
+      window.removeEventListener('resize', syncNavVisibility)
+    }
+  }, [syncNavVisibility])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -159,14 +211,16 @@ export default function App() {
         go(total - 1)
       } else if (e.key.toLowerCase() === 'p') {
         window.print()
+      } else if (e.key === 'F11') {
+        window.setTimeout(syncNavVisibility, 150)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [go, index, total])
+  }, [go, index, syncNavVisibility, total])
 
   return (
-    <div className="deck">
+    <div className={`deck${hideNav ? ' deck--fullscreen' : ''}`}>
       <div className="deck__atmosphere" aria-hidden="true" />
 
       <main className="deck__stage" key={slides[index].id}>

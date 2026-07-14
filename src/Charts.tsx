@@ -5,6 +5,8 @@ export interface ChartPoint {
   value: number
   note?: string
   display?: string
+  /** ใช้แปลงเป็นบาทไทยเมื่อเป็นตัวเลขมูลค่า USD */
+  usdScale?: 'M' | 'B'
 }
 
 export interface ChartConfig {
@@ -213,16 +215,51 @@ function StatRow({ chart }: { chart: ChartConfig }) {
   return (
     <ChartFrame title={chart.title}>
       <div className="chart-stats">
-        {chart.points.map((p, i) => (
-          <div key={p.label} className="chart-stats__item" style={{ animationDelay: `${i * 60}ms` }}>
-            <span className="chart-stats__value">{p.display ?? formatValue(p.value, chart.unit)}</span>
-            <span className="chart-stats__label">{p.label}</span>
-            {p.note && <span className="chart-stats__note">{p.note}</span>}
-          </div>
-        ))}
+        {chart.points.map((p, i) => {
+          const thb = p.usdScale ? formatThbFromUsd(p.value, p.usdScale) : null
+
+          return (
+            <article
+              key={p.label}
+              className="chart-stats__card"
+              style={{ animationDelay: `${i * 70}ms` }}
+            >
+              <span className="chart-stats__idx" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div className="chart-stats__body">
+                <p className="chart-stats__label">{p.label}</p>
+                <p className="chart-stats__value">{p.display ?? formatValue(p.value, chart.unit)}</p>
+                {thb && <p className="chart-stats__thb">{thb}</p>}
+                {p.note && <p className="chart-stats__note">{p.note}</p>}
+              </div>
+            </article>
+          )
+        })}
       </div>
+      {chart.points.some((p) => p.usdScale) && (
+        <p className="chart-stats__fx">อัตราแลกเปลี่ยนอ้างอิง ~33.5 บาท / USD</p>
+      )}
     </ChartFrame>
   )
+}
+
+/** อัตราแลกเปลี่ยนอ้างอิงสำหรับแสดงมูลค่าเป็นบาทไทย */
+const THB_PER_USD = 33.5
+
+function formatThbFromUsd(value: number, scale: 'M' | 'B') {
+  const thb = value * (scale === 'B' ? 1_000_000_000 : 1_000_000) * THB_PER_USD
+
+  if (thb >= 1_000_000_000_000) {
+    return `≈ ${(thb / 1_000_000_000_000).toLocaleString('th-TH', { maximumFractionDigits: 2 })} ล้านล้านบาท`
+  }
+  if (thb >= 1_000_000_000) {
+    return `≈ ${(thb / 1_000_000_000).toLocaleString('th-TH', { maximumFractionDigits: 1 })} พันล้านบาท`
+  }
+  if (thb >= 1_000_000) {
+    return `≈ ${(thb / 1_000_000).toLocaleString('th-TH', { maximumFractionDigits: 0 })} ล้านบาท`
+  }
+  return `≈ ${thb.toLocaleString('th-TH')} บาท`
 }
 
 function formatValue(value: number, unit?: string) {
