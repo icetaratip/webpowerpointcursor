@@ -12,7 +12,8 @@ export const brands = {
   uber: brand('uber'),
   adobe: brand('adobe'),
   spacex: brand('spacex'),
-  vscode: brand('visual-studio-code'),
+  vscode:
+    'https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/visual-studio-code/default.svg',
   anthropic: brand('anthropic'),
   google: brand('google'),
   amazon: brand('amazon'),

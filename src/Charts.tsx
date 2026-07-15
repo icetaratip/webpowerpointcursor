@@ -282,22 +282,22 @@ function StatRow({ chart }: { chart: ChartConfig }) {
   )
 }
 
-/** อัตราแลกเปลี่ยนอ้างอิงสำหรับแสดงมูลค่าเป็นบาทไทย */
-const THB_PER_USD = 33.5
+/** อัตราแลกเปลี่ยนแบบปัดกลมสำหรับสไลด์: 1 ดอลลาร์ ≈ 35 บาท */
+const THB_PER_USD = 35
 
 function formatThbFromUsd(value: number, scale: 'M' | 'B') {
   const thb = value * (scale === 'B' ? 1_000_000_000 : 1_000_000) * THB_PER_USD
 
   if (thb >= 1_000_000_000_000) {
-    return `≈ ${(thb / 1_000_000_000_000).toLocaleString('th-TH', { maximumFractionDigits: 2 })} ล้านล้านบาท`
+    return `ประมาณ ${(thb / 1_000_000_000_000).toLocaleString('th-TH', { maximumFractionDigits: 2 })} ล้านล้านบาท`
   }
   if (thb >= 1_000_000_000) {
-    return `≈ ${(thb / 1_000_000_000).toLocaleString('th-TH', { maximumFractionDigits: 1 })} พันล้านบาท`
+    return `ประมาณ ${(thb / 1_000_000_000).toLocaleString('th-TH', { maximumFractionDigits: 1 })} พันล้านบาท`
   }
   if (thb >= 1_000_000) {
-    return `≈ ${(thb / 1_000_000).toLocaleString('th-TH', { maximumFractionDigits: 0 })} ล้านบาท`
+    return `ประมาณ ${(thb / 1_000_000).toLocaleString('th-TH', { maximumFractionDigits: 0 })} ล้านบาท`
   }
-  return `≈ ${thb.toLocaleString('th-TH')} บาท`
+  return `ประมาณ ${thb.toLocaleString('th-TH')} บาท`
 }
 
 function formatValue(value: number, unit?: string) {

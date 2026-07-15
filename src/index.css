@@ -320,6 +320,7 @@ main {
   color: var(--text-soft);
   font-size: 18px;
   line-height: 1.8;
+  white-space: pre-line;
 }
 
 .hero__actions {
@@ -887,7 +888,7 @@ main {
 }
 
 .chapter--market .chapter__lead {
-  white-space: nowrap;
+  white-space: pre-line;
 }
 
 .chapter--engine .engine-head__copy {
@@ -1296,14 +1297,30 @@ main {
   border-radius: var(--radius-lg);
   background: #fff;
   border: 1px solid var(--line);
+  color: inherit;
   display: grid;
   grid-template-rows: auto 1fr;
   position: relative;
   overflow: hidden;
+  text-align: left;
 }
 
 .team-card:first-child {
   min-height: 0;
+}
+
+.team-card__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+}
+
+.team-card__hit:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -5px;
 }
 
 .team-card__media {
@@ -1392,6 +1409,259 @@ main {
   background: var(--accent);
 }
 
+.team-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 520;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 26% 18%, rgba(255, 255, 255, 0.18), transparent 28%),
+    rgba(9, 9, 8, 0.82);
+  backdrop-filter: blur(12px);
+  animation: teamModalFade 180ms var(--ease-out) both;
+}
+
+.team-modal__panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(420px, 0.95fr) minmax(480px, 1.05fr);
+  gap: 12px;
+  width: min(1240px, 100%);
+  max-height: min(860px, 92vh);
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: teamModalPanelIn 240ms var(--ease-out) both;
+}
+
+.team-modal__close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 2;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.78);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.team-modal__close:active {
+  transform: scale(0.96);
+}
+
+.team-modal__portrait {
+  min-height: 600px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  transform-origin: right center;
+  animation: teamPortraitSplitIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.team-modal__portrait img {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  object-fit: cover;
+  outline: 0;
+}
+
+.team-modal__content {
+  display: grid;
+  align-content: center;
+  gap: 16px;
+  padding: clamp(32px, 4.2vw, 58px);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(240, 240, 236, 0.96)),
+    #f7f7f4;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.28);
+  transform-origin: left center;
+  animation: teamContentSplitIn 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.team-modal__eyebrow,
+.team-modal__content h3,
+.team-modal__role,
+.team-modal__bullets,
+.team-modal__tags {
+  animation: teamTextRunIn 420ms var(--ease-out) both;
+}
+
+.team-modal__content h3 {
+  animation-delay: 60ms;
+}
+
+.team-modal__role {
+  animation-delay: 115ms;
+}
+
+.team-modal__bullets {
+  animation-delay: 170ms;
+}
+
+.team-modal__tags {
+  animation-delay: 230ms;
+}
+
+.team-modal__eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.team-modal__eyebrow small {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.team-modal__content h3 {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(38px, 4.4vw, 64px);
+  line-height: 0.94;
+}
+
+.team-modal__role {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.team-modal__bullets {
+  display: grid;
+  gap: 12px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-modal__bullets li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--text-soft);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.team-modal__bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.74em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #111;
+  box-shadow: 0 0 0 5px rgba(17, 17, 17, 0.08);
+}
+
+.team-modal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.team-modal__tags span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+@keyframes teamModalFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes teamModalPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes teamPortraitSplitIn {
+  from {
+    opacity: 0;
+    transform: translateX(84px) scaleX(0.9) scaleY(0.96);
+    clip-path: inset(0 24% 0 0 round 8px);
+  }
+  58% {
+    opacity: 1;
+    transform: translateX(-10px) scaleX(1.01) scaleY(1);
+    clip-path: inset(0 0 0 0 round 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scaleX(1) scaleY(1);
+    clip-path: inset(0 0 0 0 round 8px);
+  }
+}
+
+@keyframes teamContentSplitIn {
+  from {
+    opacity: 0;
+    transform: translateX(-54px) scaleX(0.94) scaleY(0.98);
+  }
+  62% {
+    opacity: 1;
+    transform: translateX(8px) scaleX(1.01) scaleY(1);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scaleX(1) scaleY(1);
+  }
+}
+
+@keyframes teamTextRunIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .chapter--deal {
   display: block;
 }
@@ -1399,12 +1669,16 @@ main {
 .deal-shell {
   display: grid;
   gap: 24px;
-  padding: 28px;
-  border-radius: var(--radius-lg);
-  background: #111;
+  padding: clamp(24px, 4vw, 52px);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 34%),
+    #0f1111;
   color: #fff;
   overflow: hidden;
   position: relative;
+  min-height: min(760px, calc(100vh - 150px));
+  isolation: isolate;
 }
 
 .deal-shell::before {
@@ -1412,24 +1686,47 @@ main {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 42px 42px;
-  opacity: 0.7;
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(90deg, #000 0%, transparent 82%);
+  opacity: 0.8;
   pointer-events: none;
+  z-index: -2;
+}
+
+.deal-shell::after {
+  content: "";
+  position: absolute;
+  right: -12%;
+  top: -34%;
+  width: 58%;
+  height: 92%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  filter: blur(4px);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .deal-kicker,
-.deal-grid {
+.deal-hero,
+.deal-points {
   position: relative;
   z-index: 1;
 }
 
 .deal-kicker {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: rgba(255, 255, 255, 0.74);
+  width: fit-content;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
 }
 
 .deal-kicker .icon-badge {
@@ -1438,58 +1735,120 @@ main {
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-.deal-grid {
+.deal-hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(440px, 0.9fr);
-  gap: 44px;
-  align-items: end;
+  grid-template-columns: minmax(0, 1.04fr) minmax(390px, 0.72fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+  flex: 1;
 }
 
 .deal-copy {
   display: grid;
-  gap: 20px;
+  align-content: center;
+  gap: clamp(18px, 2.4vw, 28px);
+  max-width: 860px;
 }
 
 .deal-logo {
-  display: none;
+  width: 112px;
+  height: auto;
+  max-height: 42px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+  outline: 0;
 }
 
 .deal-copy h2 {
-  max-width: 720px;
+  max-width: 820px;
   color: #fff;
-  font-size: clamp(38px, 4.3vw, 64px);
-  line-height: 1.12;
+  font-size: clamp(32px, 4.2vw, 62px);
+  line-height: 1.04;
+  letter-spacing: 0;
 }
 
 .deal-copy h2 span {
   display: block;
+  margin-bottom: 6px;
 }
 
-.deal-brief {
+.deal-copy > p {
+  max-width: 720px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.78;
+  text-wrap: pretty;
+}
+
+.deal-timeline {
   display: grid;
-  gap: 18px;
+  grid-template-columns: auto 1fr auto 1fr;
+  align-items: center;
+  gap: 10px 14px;
+  max-width: 700px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.deal-timeline span {
+  color: rgba(255, 255, 255, 0.56);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.deal-timeline strong {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.deal-visual {
+  display: grid;
+  gap: 14px;
+  align-self: stretch;
+  align-content: center;
+}
+
+.deal-visual__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 54px;
+  padding: 0 4px;
+  color: rgba(255, 255, 255, 0.58);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .deal-image-button {
-  width: min(100%, 360px);
-  justify-self: center;
+  width: 100%;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   background: transparent;
   color: inherit;
   cursor: zoom-in;
+  overflow: visible;
+  box-shadow: none;
 }
 
 .deal-image {
   width: 100%;
-  max-height: 340px;
-  height: auto;
+  height: clamp(320px, 38vw, 560px);
   object-fit: contain;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0;
+  border-radius: 0;
+  border: 0;
   outline: 0;
   background: transparent;
+  transition: transform 220ms var(--ease-out);
 }
 
 .deal-image-button:focus-visible {
@@ -1498,40 +1857,36 @@ main {
 }
 
 .deal-image-button:hover .deal-image {
-  border-color: rgba(255, 255, 255, 0.45);
-}
-
-.deal-brief > p {
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 18px;
-  line-height: 1.75;
-  text-wrap: pretty;
+  transform: scale(1.025);
 }
 
 .deal-points {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  gap: 12px;
+}
+
+.deal-points article {
+  min-height: 112px;
+  display: grid;
+  align-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .deal-points span {
-  min-height: 64px;
-  display: grid;
-  place-items: center;
-  padding: 14px;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.56);
   font-family: var(--font-mono);
-  font-size: 12px;
-  text-align: center;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 11px;
 }
 
-.deal-points span:first-child {
-  border-left: 0;
-  background: #fff;
-  color: #111;
+.deal-points strong {
+  color: #fff;
+  font-size: clamp(18px, 1.8vw, 26px);
+  line-height: 1.18;
 }
 
 .image-modal {
@@ -2684,10 +3039,14 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .deal-grid {
+  .deal-hero {
     grid-template-columns: 1fr;
     gap: 32px;
     align-items: start;
+  }
+
+  .deal-shell {
+    min-height: auto;
   }
 
   .closing__grid {
@@ -2713,9 +3072,12 @@ main {
   }
 
   .chapter--engine #engine-title,
-  .chapter--engine .chapter__lead,
-  .chapter--market .chapter__lead {
+  .chapter--engine .chapter__lead {
     white-space: normal;
+  }
+
+  .chapter--market .chapter__lead {
+    white-space: pre-line;
   }
 
   .chapter--history .story-lines {
@@ -2724,15 +3086,6 @@ main {
 
   .deal-points {
     grid-template-columns: 1fr;
-  }
-
-  .deal-points span {
-    border-left: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .deal-points span:first-child {
-    border-top: 0;
   }
 
   .team-wall {
@@ -2745,6 +3098,16 @@ main {
 
   .team-card__media {
     aspect-ratio: 5 / 4;
+  }
+
+  .team-modal__panel {
+    grid-template-columns: minmax(340px, 0.95fr) minmax(360px, 1.05fr);
+    max-height: 88vh;
+  }
+
+  .team-modal__portrait,
+  .team-modal__portrait img {
+    min-height: 520px;
   }
 }
 
@@ -2813,7 +3176,7 @@ main {
   .workspace-preview__agent span,
   .ide__msg,
   .ide__composer {
-    white-space: normal;
+    white-space: pre-line;
     overflow-wrap: break-word;
     word-break: normal;
     line-break: auto;
@@ -2874,22 +3237,39 @@ main {
 
   .deal-shell {
     padding: 22px;
+    gap: 18px;
   }
 
-  .deal-image-button {
-    width: min(100%, 320px);
-  }
-
-  .deal-image {
-    max-height: 320px;
+  .deal-kicker {
+    align-items: flex-start;
   }
 
   .deal-copy h2 {
-    font-size: 34px;
+    font-size: 30px;
   }
 
-  .deal-brief > p {
-    font-size: 17px;
+  .deal-copy > p {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .deal-timeline {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .deal-visual__topline {
+    min-height: auto;
+    flex-wrap: wrap;
+  }
+
+  .deal-image {
+    height: 300px;
+    padding: 0;
+  }
+
+  .deal-points article {
+    min-height: 96px;
+    padding: 16px;
   }
 
   .chapter--history h2 {
@@ -2969,6 +3349,45 @@ main {
 
   .team-card__media {
     aspect-ratio: 16 / 11;
+  }
+
+  .team-modal {
+    align-items: start;
+    padding: 14px;
+    overflow-y: auto;
+  }
+
+  .team-modal__panel {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    border-radius: 8px;
+  }
+
+  .team-modal__portrait,
+  .team-modal__portrait img {
+    min-height: 260px;
+  }
+
+  .team-modal__portrait img {
+    height: 320px;
+  }
+
+  .team-modal__content {
+    padding: 24px;
+  }
+
+  .team-modal__content h3 {
+    font-size: 38px;
+  }
+
+  .team-modal__role {
+    font-size: 16px;
+  }
+
+  .team-modal__bullets li {
+    font-size: 15px;
   }
 
   .chapter {

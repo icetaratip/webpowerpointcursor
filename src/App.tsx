@@ -283,8 +283,8 @@ function HeroSection({ cover, highlights }: { cover?: Slide; highlights?: Slide 
           </p>
         )}
         <div className="hero__actions" aria-label="ทางลัดในหน้า">
-          <a href="#demo">ดูเดโม</a>
-          <a href="#proof">ดูตัวเลข</a>
+          <a href="#demo">View Demo</a>
+          <a href="#proof">View Numbers</a>
         </div>
         <LogoStrip logos={cover?.logos} />
       </div>
@@ -576,6 +576,57 @@ function MarketSection({
 }
 
 function TeamSection({ team }: { team?: Slide }) {
+  const [selectedTeamIndex, setSelectedTeamIndex] = useState<number | null>(null)
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const cardRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const selectedMember =
+    selectedTeamIndex === null ? null : team?.items?.[selectedTeamIndex] ?? null
+  const selectedPerson = selectedMember ? splitPerson(selectedMember.text) : null
+
+  useEffect(() => {
+    if (selectedTeamIndex === null) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedTeamIndex(null)
+        return
+      }
+
+      if (event.key !== 'Tab') return
+      const dialog = closeButtonRef.current?.closest('.team-modal__panel')
+      if (!dialog) return
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute('disabled'))
+
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKeyDown)
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+      cardRefs.current[selectedTeamIndex]?.focus()
+    }
+  }, [selectedTeamIndex])
+
   return (
     <section className="chapter chapter--team" id="team" aria-labelledby="team-title">
       <div className="team-head" {...aos(0)}>
@@ -607,7 +658,21 @@ function TeamSection({ team }: { team?: Slide }) {
         {team?.items?.map((item, index) => {
           const person = splitPerson(item.text)
           return (
-            <article key={item.text} className="team-card" {...aos(index * 80)}>
+            <article
+              key={item.text}
+              className="team-card"
+              {...aos(index * 80)}
+            >
+              <button
+                ref={(element) => {
+                  cardRefs.current[index] = element
+                }}
+                type="button"
+                className="team-card__hit"
+                aria-haspopup="dialog"
+                aria-label={`ดูรายละเอียดของ ${person.name}`}
+                onClick={() => setSelectedTeamIndex(index)}
+              />
               <div className="team-card__media">
                 {item.image && <img src={item.image} alt={person.name} loading="lazy" />}
               </div>
@@ -630,6 +695,55 @@ function TeamSection({ team }: { team?: Slide }) {
           )
         })}
       </div>
+
+      {selectedMember && selectedPerson && (
+        <div className="team-modal" onClick={() => setSelectedTeamIndex(null)}>
+          <div
+            className="team-modal__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="team-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              ref={closeButtonRef}
+              className="team-modal__close"
+              type="button"
+              aria-label="ปิดรายละเอียดทีม"
+              onClick={() => setSelectedTeamIndex(null)}
+            >
+              ×
+            </button>
+
+            <div className="team-modal__portrait">
+              {selectedMember.image && <img src={selectedMember.image} alt={selectedPerson.name} />}
+            </div>
+
+            <div className="team-modal__content">
+              <div className="team-modal__eyebrow">
+                <span>{selectedMember.label}</span>
+                <small>{String((selectedTeamIndex ?? 0) + 1).padStart(2, '0')}</small>
+              </div>
+              <h3 id="team-modal-title">{selectedPerson.name}</h3>
+              {(selectedMember.note || selectedPerson.title) && (
+                <p className="team-modal__role">{selectedMember.note ?? selectedPerson.title}</p>
+              )}
+              {selectedMember.bullets?.length && (
+                <ul className="team-modal__bullets">
+                  {selectedMember.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              )}
+              <div className="team-modal__tags" aria-label="บทบาทสำคัญ">
+                <span>Cursor</span>
+                <span>AI Editor</span>
+                <span>Founding Team</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
@@ -656,23 +770,39 @@ function DealSection({ deal }: { deal?: Slide }) {
 
   if (!deal) return null
 
+  const dealTerms = [
+    { label: 'รูปแบบดีล', value: 'จ่ายด้วยหุ้นทั้งหมด' },
+    { label: 'กำหนดปิดดีล', value: 'ไตรมาส 3 ปี 2026' },
+    { label: 'ความหมายเชิงกลยุทธ์', value: 'ทรัพย์สิน AI สำหรับองค์กร' },
+  ]
+
   return (
     <section className="chapter chapter--deal" id="deal" aria-labelledby="deal-title">
       <div className="deal-shell" {...aos(0)}>
-        <div className="deal-kicker">
-          <IconBadge icon={deal.icon ?? 'rocket'} />
-          <span>{deal.kicker}</span>
-        </div>
-
-        <div className="deal-grid">
-          <div className="deal-copy" {...aos(0, 'fade-right')}>
-            {deal.logos?.[0] && <img className="deal-logo" src={deal.logos[0].src} alt={deal.logos[0].alt} loading="lazy" />}
+        <div className="deal-hero">
+          <div className="deal-copy" {...aos(0)}>
+            <div className="deal-kicker">
+              <IconBadge icon={deal.icon ?? 'rocket'} />
+              <span>{deal.kicker}</span>
+            </div>
             <h2 id="deal-title">
               <DisplayTitle title={deal.title} />
             </h2>
+            <p>{deal.lead}</p>
+
+            <div className="deal-timeline" aria-label="ลำดับเหตุการณ์ดีล">
+              <span>ประกาศดีล</span>
+              <strong>16 มิ.ย. 2026</strong>
+              <span>คาดว่าจะปิดดีล</span>
+              <strong>ไตรมาส 3 ปี 2026</strong>
+            </div>
           </div>
 
-          <div className="deal-brief" {...aos(140, 'fade-left')}>
+          <div className="deal-visual" {...aos(120, 'fade-left')}>
+            <div className="deal-visual__topline">
+              {deal.logos?.[0] && <img className="deal-logo" src={deal.logos[0].src} alt={deal.logos[0].alt} loading="lazy" />}
+              <span>สัญญาณการเข้าซื้อกิจการ</span>
+            </div>
             {deal.heroImage && (
               <button className="deal-image-button" type="button" onClick={() => setIsImageOpen(true)} aria-label="เปิดรูปขนาดใหญ่">
                 <img
@@ -686,13 +816,16 @@ function DealSection({ deal }: { deal?: Slide }) {
                 />
               </button>
             )}
-            <p>{deal.lead}</p>
-            <div className="deal-points" aria-label="รายละเอียดข้อตกลง">
-              <span>All-stock deal</span>
-              <span>Q3 2026 close</span>
-              <span>Strategic AI asset</span>
-            </div>
           </div>
+        </div>
+
+        <div className="deal-points" aria-label="รายละเอียดข้อตกลง">
+          {dealTerms.map((term, index) => (
+            <article key={term.label} {...aos(180 + index * 70)}>
+              <span>{term.label}</span>
+              <strong>{term.value}</strong>
+            </article>
+          ))}
         </div>
       </div>
 
@@ -746,9 +879,9 @@ function FutureSection({ future }: { future?: Slide }) {
       </div>
 
       <div className="future-flow" aria-label="เป้าหมายการใช้เงินลงทุน" {...aos(80)}>
-        <span>Product development</span>
-        <span>Team expansion</span>
-        <span>AI editor growth</span>
+        <span>พัฒนาผลิตภัณฑ์</span>
+        <span>ขยายทีมงาน</span>
+        <span>เร่งการเติบโตของ AI Editor</span>
       </div>
 
       <div className="future-grid">
